@@ -7046,11 +7046,14 @@ static void CalcResizePosSizeFromAnyCorner(ImGuiWindow* window, const ImVec2& co
     *out_size = size_constrained;
 }
 
-static bool HasAutoFitFrames()
+static bool ShouldWaitAutoFitFrames()
 {
     ImGuiContext& g = *GImGui;
     for (ImGuiWindow* window : g.Windows)
     {
+        if (!window->Active)
+            continue;
+
         if (window->AutoFitFramesX > 0 || window->AutoFitFramesY > 0)
         {
             return true;
@@ -16026,7 +16029,7 @@ void ImGui::UpdateSettings()
     {
         g.SettingsDirtyTimer -= g.IO.DeltaTime;
         // Wait for the auto fit frames to pass before saving the settings to disk
-        if (g.SettingsDirtyTimer <= 0.0f && !HasAutoFitFrames())
+        if (g.SettingsDirtyTimer <= 0.0f && !ShouldWaitAutoFitFrames())
         {
             if (g.IO.IniFilename != NULL)
                 SaveIniSettingsToDisk(g.IO.IniFilename);
